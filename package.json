@@ -8,10 +8,10 @@
     "dug": "bin/dug.js"
   },
   "scripts": {
-    "build": "bun build src/index.tsx --outdir dist --target node",
+    "build": "bun build src/index.tsx --outdir dist --target node --external react-devtools-core",
     "dev": "bun run src/index.tsx",
     "start": "bun run src/index.tsx",
-    "compile": "bun build src/index.tsx --compile --outfile dug",
+    "compile": "bun build src/index.tsx --compile --outfile dug --external react-devtools-core",
     "test": "bun test"
   },
   "files": [
