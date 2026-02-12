@@ -50,6 +50,28 @@ const TAGLINE = Math.random() < 0.1
   ? 'SQUIRREL!!!'
   : 'I have just met your data and I LOVE it!';
 
+type Seg = { t: string; c?: string; b?: boolean; i?: boolean; d?: boolean };
+type ArtLine = Seg[];
+
+const DUG_ART: ArtLine[] = [
+  [{ t: '       ' }, { t: ' .-.', c: 'red' }, { t: '  ' }, { t: '.-.', c: 'cyan' }, { t: '  ' }, { t: '.-.', c: 'green' }, { t: '  ' }, { t: '.-.', c: 'magenta' }],
+  [{ t: '       ' }, { t: '(   )', c: 'red' }, { t: '(   )', c: 'cyan' }, { t: '(   )', c: 'green' }, { t: '(   )', c: 'magenta' }],
+  [{ t: '       ' }, { t: " `-' ", c: 'red' }, { t: " `-' ", c: 'cyan' }, { t: " `-' ", c: 'green' }, { t: " `-' ", c: 'magenta' }],
+  [{ t: '          ' }, { t: '\\  |  |  /', d: true }],
+  [{ t: '           ' }, { t: '\\ | | /', d: true }],
+  [{ t: '            ' }, { t: '\\|_|/', d: true }],
+  [{ t: '    ,,         |', c: 'yellow' }],
+  [{ t: '   (  )_       |', c: 'yellow' }],
+  [{ t: '    \\   )      |', c: 'yellow' }],
+  [{ t: '   / .', c: 'yellow' }, { t: 'O O' }, { t: '. \\   |', c: 'yellow' }],
+  [{ t: '  |  .', c: 'yellow' }, { t: '(_)' }, { t: '.  ', c: 'yellow' }, { t: '[]---', c: 'red', b: true }, { t: "'", c: 'yellow' }],
+  [{ t: '  |  ', c: 'yellow' }, { t: '\\___/' }, { t: '  |', c: 'yellow' }],
+  [{ t: '   \\_______/', c: 'yellow' }],
+  [{ t: '   |  | |  |', c: 'yellow' }, { t: '      ' }, { t: '~squirrel?', c: 'gray', i: true }],
+  [{ t: '   |  | |  |', c: 'yellow' }],
+  [{ t: '   (__) (__)', c: 'yellow' }],
+];
+
 const DEFAULT_URL = 'http://localhost:9925';
 const DEFAULT_USER = 'HDB_ADMIN';
 
@@ -154,7 +176,14 @@ export function ConnectScreen({
   return (
     <Box flexDirection="column" paddingX={1}>
       <Box marginBottom={1} flexDirection="column">
-        <Text bold color="magenta">{TAGLINE}</Text>
+        {DUG_ART.map((line, li) => (
+          <Text key={li}>
+            {line.map((s, si) => (
+              <Text key={si} color={s.c as any} bold={s.b} italic={s.i} dimColor={s.d}>{s.t}</Text>
+            ))}
+          </Text>
+        ))}
+        <Text bold color="magenta">{' '}{TAGLINE}</Text>
       </Box>
 
       {/* Recent connections */}
