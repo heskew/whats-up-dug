@@ -138,7 +138,10 @@ export function DashboardScreen({
     <Box flexDirection="column" paddingX={2}>
       {/* Header */}
       <Box marginBottom={1} flexDirection="column">
-        <Text bold>Databases</Text>
+        <Box>
+          <Text bold>Databases </Text>
+          <Text color="yellow">(⊙.⊙)</Text>
+        </Box>
         <Text dimColor>
           {databases.length} database{databases.length === 1 ? '' : 's'}  {'\u00b7'}  {totalRecords.toLocaleString()} total records  {'\u00b7'}  {queryTime}ms
         </Text>

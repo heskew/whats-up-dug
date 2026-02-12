@@ -1,8 +1,6 @@
-# what's up Dug?
+# what's up Dug? 🐕
 
 > *"I have just met your data and I LOVE it!"*
-
-This is Dug. A good boy who sniffs around your [Harper](https://harper.fast/) instances. Full-screen terminal UI for exploring databases, tables, and records — completely read-only, because Dug is a good boy who doesn't chew on things.
 
 ## What dug does
 
