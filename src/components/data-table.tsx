@@ -8,6 +8,8 @@ interface DataTableProps {
   selectedRow: number;
   page: number;
   totalPages?: number;
+  colStart?: number;
+  availableWidth?: number;
   onSelect?: (row: Record<string, any>) => void;
 }
 
@@ -37,8 +39,10 @@ export function DataTable({
   selectedRow,
   page,
   totalPages,
+  colStart = 0,
+  availableWidth,
 }: DataTableProps) {
-  const columns = useMemo(() => {
+  const allColumns = useMemo(() => {
     if (columnsProp && columnsProp.length > 0) return columnsProp;
     if (data.length === 0) return [];
     const keys = Object.keys(data[0]);
@@ -48,7 +52,71 @@ export function DataTable({
   }, [data, columnsProp]);
 
   const { columns: termWidth, tablePageSize: maxVisibleRows } = useTerminalSize();
-  const COL_GAP = 2; // spaces between columns
+  const effectiveWidth = availableWidth ?? termWidth;
+  const COL_GAP = 2;
+  const MAX_COL_WIDTH = 30;
+  const MIN_COL_WIDTH = 8;
+  const ROW_MARKER_WIDTH = 4; // "  ▶ "
+
+  // Compute natural column widths from ALL page data (not just visible rows)
+  // so there's no circular dependency with viewport calculation
+  const naturalWidths = useMemo(() => {
+    if (allColumns.length === 0) return [];
+
+    return allColumns.map((col) => {
+      let w = col.length;
+      for (const row of data) {
+        const cellLen = formatCell(row[col], col).length;
+        if (cellLen > w) w = cellLen;
+      }
+      return Math.max(MIN_COL_WIDTH, Math.min(w, MAX_COL_WIDTH));
+    });
+  }, [allColumns, data]);
+
+  // Horizontal windowing: pack columns starting from colStart until we fill the width
+  const { columns, colWidths, hiddenLeft, hiddenRight } = useMemo(() => {
+    if (allColumns.length === 0) return { columns: [], colWidths: [], hiddenLeft: 0, hiddenRight: 0 };
+
+    // Compute max colStart: work backwards from the last column
+    let maxStart = allColumns.length - 1;
+    let budget = effectiveWidth - ROW_MARKER_WIDTH;
+    for (let i = allColumns.length - 1; i >= 0; i--) {
+      const w = naturalWidths[i];
+      const needed = i < allColumns.length - 1 ? w + COL_GAP : w;
+      if (budget < needed) break;
+      budget -= needed;
+      maxStart = i;
+    }
+
+    const clamped = Math.max(0, Math.min(colStart, maxStart));
+    let available = effectiveWidth - ROW_MARKER_WIDTH;
+    const visCols: string[] = [];
+    const visWidths: number[] = [];
+
+    for (let i = clamped; i < allColumns.length; i++) {
+      const w = naturalWidths[i];
+      const needed = visCols.length > 0 ? w + COL_GAP : w;
+      if (available < needed) {
+        if (visCols.length === 0) {
+          visCols.push(allColumns[i]);
+          visWidths.push(Math.max(MIN_COL_WIDTH, available));
+        }
+        break;
+      }
+      visCols.push(allColumns[i]);
+      visWidths.push(w);
+      available -= needed;
+    }
+
+    return {
+      columns: visCols,
+      colWidths: visWidths,
+      hiddenLeft: clamped,
+      hiddenRight: allColumns.length - clamped - visCols.length,
+    };
+  }, [allColumns, naturalWidths, colStart, effectiveWidth]);
+
+  const hasColScroll = hiddenLeft > 0 || hiddenRight > 0;
 
   // Viewport window: keep selectedRow visible
   const { windowStart, windowEnd } = useMemo(() => {
@@ -57,10 +125,8 @@ export function DataTable({
 
     let start = 0;
     if (selectedRow >= windowSize) {
-      // Scroll so selectedRow is near the bottom of the window
       start = selectedRow - windowSize + 1;
     }
-    // Clamp
     start = Math.max(0, Math.min(start, total - windowSize));
     return { windowStart: start, windowEnd: start + windowSize };
   }, [data.length, selectedRow, maxVisibleRows]);
@@ -69,25 +135,6 @@ export function DataTable({
     () => data.slice(windowStart, windowEnd),
     [data, windowStart, windowEnd],
   );
-
-  const colWidths = useMemo(() => {
-    if (columns.length === 0) return [];
-
-    const widths = columns.map((col) => col.length);
-    // Only measure visible rows for column widths (performance)
-    for (const row of visibleData) {
-      for (let i = 0; i < columns.length; i++) {
-        const cellLen = formatCell(row[columns[i]], columns[i]).length;
-        if (cellLen > widths[i]) widths[i] = cellLen;
-      }
-    }
-
-    // 4 chars for row marker "  > ", then COL_GAP between each column
-    const available = termWidth - 4 - COL_GAP * (columns.length - 1);
-    const maxPerCol = Math.max(8, Math.floor(available / columns.length));
-
-    return widths.map((w) => Math.min(w, maxPerCol));
-  }, [columns, visibleData, termWidth]);
 
   if (data.length === 0) {
     return (
@@ -104,46 +151,62 @@ export function DataTable({
 
   const gap = ' '.repeat(COL_GAP);
 
+  // Build full row strings to avoid Ink flex layout alignment quirks
+  const buildRowStr = (cells: string[]) =>
+    cells.map((cell, i) => (i > 0 ? gap : '') + cell).join('');
+
+  const headerStr = buildRowStr(columns.map((col, i) => pad(col, colWidths[i])));
+  const separatorStr = buildRowStr(colWidths.map((w) => '\u2500'.repeat(w)));
+
   return (
     <Box flexDirection="column">
+      {/* Horizontal scroll indicator */}
+      {hasColScroll && (
+        <Box>
+          <Text dimColor>
+            {'    '}
+            {hiddenLeft > 0 ? `\u2190 ${hiddenLeft} col${hiddenLeft === 1 ? '' : 's'}` : ''}
+            {hiddenLeft > 0 && hiddenRight > 0 ? '  \u00b7  ' : ''}
+            {hiddenRight > 0 ? `${hiddenRight} col${hiddenRight === 1 ? '' : 's'} \u2192` : ''}
+            {'  (h/l)'}
+          </Text>
+        </Box>
+      )}
+
       {/* Header */}
       <Box>
-        <Text dimColor>{'    '}</Text>
-        {columns.map((col, i) => (
-          <Text key={col} dimColor bold>
-            {i > 0 ? gap : ''}{pad(col, colWidths[i])}
-          </Text>
-        ))}
+        <Text dimColor bold>{'    '}{headerStr}</Text>
       </Box>
 
       {/* Separator */}
       <Box>
-        <Text dimColor>
-          {'    '}{columns.map((_, i) => '\u2500'.repeat(colWidths[i])).join(gap)}
-        </Text>
+        <Text dimColor>{'    '}{separatorStr}</Text>
       </Box>
 
       {/* Scroll indicator (top) */}
       {windowStart > 0 && (
         <Box>
-          <Text dimColor>    \u2191 {windowStart} more above</Text>
+          <Text dimColor>{'    \u2191 '}{windowStart}{' more above'}</Text>
         </Box>
       )}
 
-      {/* Rows (viewport clipped) */}
+      {/* Rows */}
       {visibleData.map((row, viewIdx) => {
         const rowIdx = windowStart + viewIdx;
         const isSelected = rowIdx === selectedRow;
+        const rowStr = buildRowStr(
+          columns.map((col, i) => pad(formatCell(row[col], col), colWidths[i])),
+        );
         return (
           <Box key={rowIdx}>
-            <Text color={isSelected ? 'cyan' : undefined} bold={isSelected}>
-              {isSelected ? ' \u25b6  ' : '    '}
-            </Text>
-            {columns.map((col, i) => (
-              <Text key={col} inverse={isSelected}>
-                {i > 0 ? gap : ''}{pad(formatCell(row[col], col), colWidths[i])}
+            {isSelected ? (
+              <Text>
+                <Text color="cyan" bold>{' \u25b6  '}</Text>
+                <Text inverse>{rowStr}</Text>
               </Text>
-            ))}
+            ) : (
+              <Text>{'    '}{rowStr}</Text>
+            )}
           </Box>
         );
       })}
@@ -151,7 +214,7 @@ export function DataTable({
       {/* Scroll indicator (bottom) */}
       {windowEnd < data.length && (
         <Box>
-          <Text dimColor>    \u2193 {data.length - windowEnd} more below</Text>
+          <Text dimColor>{'    \u2193 '}{data.length - windowEnd}{' more below'}</Text>
         </Box>
       )}
 

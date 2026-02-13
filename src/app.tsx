@@ -229,6 +229,7 @@ export function App({
       case 'table':
         return [
           { key: 'j/k', label: 'navigate' },
+          { key: 'h/l', label: 'scroll cols' },
           { key: 'Enter', label: 'view' },
           { key: 'n/p', label: 'page' },
           { key: '/', label: 'search' },
@@ -364,14 +365,14 @@ export function App({
       </Box>
 
       {/* Middle: Screen content */}
-      <Box flexDirection="column">
+      <Box flexDirection="column" flexGrow={1} flexShrink={1} overflow="hidden">
         {renderScreen()}
       </Box>
 
       {/* Bottom: Key hints + quit hint */}
-      <Box paddingX={1} marginTop={1} borderStyle="single" borderTop borderBottom={false} borderLeft={false} borderRight={false}>
+      <Box flexShrink={0} paddingX={1} marginTop={1} borderStyle="single" borderTop borderBottom={false} borderLeft={false} borderRight={false} overflow="hidden">
         {qPending ? (
-          <Text color="yellow">Press q again to quit</Text>
+          <Text color="yellow" wrap="truncate">Press q again to quit</Text>
         ) : (
           <KeyHints hints={hints} />
         )}

@@ -12,14 +12,10 @@ interface KeyHintsProps {
 
 export function KeyHints({ hints }: KeyHintsProps) {
   return (
-    <Box>
-      {hints.map((hint, i) => (
-        <Box key={i}>
-          {i > 0 && <Text>  </Text>}
-          <Text bold>{hint.key}</Text>
-          <Text dimColor>: {hint.label}</Text>
-        </Box>
-      ))}
+    <Box overflow="hidden">
+      <Text wrap="truncate">
+        {hints.map((h, i) => (i > 0 ? '  ' : '') + h.key + ': ' + h.label).join('')}
+      </Text>
     </Box>
   );
 }

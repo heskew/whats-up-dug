@@ -26,14 +26,15 @@ export function TableScreen({
   onSelectRecord,
   overlayActive,
 }: TableScreenProps) {
-  const { tablePageSize, rows: termRows } = useTerminalSize();
+  const { tablePageSize, rows: termRows, columns: termCols } = useTerminalSize();
   const { stdout } = useStdout();
   const [selectedRow, setSelectedRow] = useState(0);
   const [page, setPage] = useState(0);
   const [conditions, setConditions] = useState<(Condition | ConditionGroup)[]>([]);
   const [operator, setOperator] = useState<'and' | 'or'>('and');
   const [sort, setSort] = useState<SortSpec | undefined>(undefined);
-  const [limit, setLimit] = useState(tablePageSize);
+  const [customLimit, setCustomLimit] = useState<number | undefined>(undefined);
+  const limit = customLimit ?? tablePageSize;
   const [visibleColumns, setVisibleColumns] = useState<string[] | undefined>(undefined);
   const [overlay, _setOverlay] = useState<OverlayMode>('none');
   const setOverlay = useCallback((mode: OverlayMode, prev?: OverlayMode) => {
@@ -59,6 +60,9 @@ export function TableScreen({
   // Column picker state
   const [columnToggles, setColumnToggles] = useState<Record<string, boolean>>({});
   const [columnIdx, setColumnIdx] = useState(0);
+
+  // Horizontal column scroll
+  const [colStart, setColStart] = useState(0);
 
   // Schema info overlay scroll
   const [schemaScroll, setSchemaScroll] = useState(0);
@@ -143,9 +147,10 @@ export function TableScreen({
     return schema.attributes.filter((a) => a.indexed && !a.is_primary_key).map((a) => a.attribute);
   }, [schema]);
 
-  // Reset selected row when data changes
+  // Reset selected row and column scroll when data changes
   useEffect(() => {
     setSelectedRow(0);
+    setColStart(0);
   }, [page, conditions, sort]);
 
   // Init column toggles from schema
@@ -258,6 +263,14 @@ export function TableScreen({
       if (input === 'i') {
         setSchemaScroll(0);
         setOverlay('schema-info', 'none');
+        return;
+      }
+      if (input === 'h' || key.leftArrow) {
+        setColStart((c) => Math.max(0, c - 1));
+        return;
+      }
+      if (input === 'l' || key.rightArrow) {
+        setColStart((c) => Math.min(c + 1, Math.max(0, allAttributes.length - 1)));
         return;
       }
       if (input === 'r') {
@@ -450,10 +463,10 @@ export function TableScreen({
   return (
     <Box flexDirection="column" paddingX={2}>
       {/* Header */}
-      <Box marginBottom={1} flexDirection="column">
-        <Text bold>Table <Text color="cyan">{table}</Text></Text>
+      <Box flexDirection="column">
+        <Text bold>{'  '}Table <Text color="cyan">{table}</Text></Text>
         <Text dimColor>
-          {schema?.record_count?.toLocaleString() ?? '?'} record{schema?.record_count === 1 ? '' : 's'}
+          {'  '}{schema?.record_count?.toLocaleString() ?? '?'} record{schema?.record_count === 1 ? '' : 's'}
           {'  \u00b7  '}pk: {schema?.hash_attribute ?? '?'}
           {indexedDisplay ? `  \u00b7  ${indexedDisplay}` : ''}
           {'  \u00b7  '}{queryTime}ms
@@ -548,7 +561,7 @@ export function TableScreen({
               setConditions(conds);
               setOperator(op);
               setSort(s);
-              if (lim) setLimit(lim);
+              if (lim) setCustomLimit(lim);
               setPage(0);
               setFilterSummary(
                 conds.length > 0
@@ -596,6 +609,8 @@ export function TableScreen({
                 selectedRow={selectedRow}
                 page={page}
                 totalPages={totalPages}
+                colStart={colStart}
+                availableWidth={termCols - 4}
               />
             )}
           </Box>
