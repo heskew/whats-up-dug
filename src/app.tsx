@@ -13,6 +13,7 @@ import { RecordScreen } from './screens/record.js';
 import { SystemScreen } from './screens/system.js';
 import { inferRelationships } from './relationships.js';
 import { useApi } from './hooks/use-api.js';
+import { useTerminalSize } from './hooks/use-terminal-size.js';
 import type { TableSchema } from './api/types.js';
 
 interface AppProps {
@@ -32,6 +33,7 @@ export function App({
 }: AppProps) {
   const { current, stack, push, pop } = useNavigation(initialScreen);
   const { exit } = useApp();
+  const { rows: terminalRows } = useTerminalSize();
   const [quitting, setQuitting] = useState(false);
   const [qPending, setQPending] = useState(false);
   const [connectedUrl, setConnectedUrl] = useState(initialUrl ?? '');
@@ -355,7 +357,7 @@ export function App({
   };
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" height={terminalRows}>
       {/* Top: Breadcrumb */}
       <Box paddingX={1} marginBottom={1}>
         <Breadcrumb items={breadcrumbItems} />
