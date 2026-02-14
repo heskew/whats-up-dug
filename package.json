@@ -1,6 +1,6 @@
 {
   "name": "whats-up-dug",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Interactive data exploration CLI for Harper",
   "type": "module",
   "main": "dist/index.js",
