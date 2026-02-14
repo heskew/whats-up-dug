@@ -65,6 +65,7 @@ dug responds to keyboard commands. He's a very trained boy.
 | Key | What happens |
 |-----|-------------|
 | `j` / `k` | Move between rows |
+| `h` / `l` | Scroll columns left / right |
 | `Enter` | Look at this record |
 | `n` / `p` | Next / previous page |
 | `/` | Quick search |
