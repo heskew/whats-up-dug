@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { reducer, type NavigationState } from './use-navigation.js';
+import { reducer, type NavigationState } from '../../src/hooks/use-navigation.js';
 
 const initial: NavigationState = {
   stack: [{ screen: 'connect', params: {} }],

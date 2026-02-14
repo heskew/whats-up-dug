@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { coerceValue } from './query-builder.js';
+import { coerceValue } from '../../src/components/query-builder.js';
 
 describe('coerceValue', () => {
   test('"true" returns boolean true', () => {

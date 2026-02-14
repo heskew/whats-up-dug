@@ -1,4 +1,4 @@
-import type { TableSchema, TableAttribute } from './api/types.js';
+import type { TableSchema, TableAttribute } from '../src/api/types.js';
 
 /** Build a minimal valid TableSchema for testing */
 export function makeSchema(

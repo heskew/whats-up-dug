@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, test, expect } from 'bun:test';
 import { render } from 'ink-testing-library';
-import { Breadcrumb } from './breadcrumb.js';
+import { Breadcrumb } from '../../src/components/breadcrumb.js';
 
 describe('Breadcrumb', () => {
   test('single item renders without separator', () => {

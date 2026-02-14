@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { truncate, formatCell, padCell } from './data-table.js';
+import { truncate, formatCell, padCell } from '../../src/components/data-table.js';
 
 describe('truncate', () => {
   test('string shorter than max returns as-is', () => {

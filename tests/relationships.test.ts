@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { inferRelationships } from './relationships.js';
+import { inferRelationships } from '../src/relationships.js';
 import { makeSchema, makeAttr } from './test-helpers.js';
 
 describe('inferRelationships', () => {

@@ -6,7 +6,7 @@ import {
   ComparatorSchema,
   SortSpecSchema,
   SystemInfoSchema,
-} from './types.js';
+} from '../../src/api/types.js';
 
 describe('TableAttributeSchema', () => {
   test('basic valid attribute with defaults', () => {
