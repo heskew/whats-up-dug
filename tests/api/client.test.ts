@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, mock, jest } from 'bun:test';
-import { HarperClient, formatZodError, isNetworkError } from './client.js';
+import { HarperClient, formatZodError, isNetworkError } from '../../src/api/client.js';
 import { mockFetch } from '../test-helpers.js';
 import { z } from 'zod';
 

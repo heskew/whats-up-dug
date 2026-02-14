@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, test, expect } from 'bun:test';
 import { render } from 'ink-testing-library';
-import { KeyHints } from './key-hints.js';
+import { KeyHints } from '../../src/components/key-hints.js';
 
 describe('KeyHints', () => {
   test('single hint renders key and label', () => {

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { renderJson, getLineKeyMap, type RenderedLine } from './json-tree.js';
+import { renderJson, getLineKeyMap, type RenderedLine } from '../../src/components/json-tree.js';
 
 /** Helper to extract all text from a rendered line */
 function lineText(line: RenderedLine): string {

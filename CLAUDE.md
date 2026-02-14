@@ -18,7 +18,6 @@ src/
   app.tsx            Root shell: navigation stack, key handling, screen routing, clearScreen on nav
   logger.ts          snooplogg setup — writes to ~/.dug/debug.log when enabled
   relationships.ts   Relationship inference from API metadata + naming conventions
-  test-helpers.ts    Shared test factories: makeSchema, makeAttr, mockFetch
   api/
     client.ts        HarperClient — Operations API over HTTP, Basic Auth, caching, retries
     types.ts         Zod schemas for all Harper API request/response shapes
@@ -39,6 +38,11 @@ src/
     json-tree.tsx    Syntax-highlighted JSON renderer with annotations and line selection
     key-hints.tsx    Bottom key hint bar
     query-builder.tsx  Condition builder with attribute/comparator/value editing
+tests/
+  test-helpers.ts    Shared test factories: makeSchema, makeAttr, mockFetch
+  api/               Tests for HarperClient and Zod schemas
+  hooks/             Tests for navigation reducer
+  components/        Tests for DataTable, JsonTree, KeyHints, Breadcrumb, QueryBuilder
 ```
 
 ## Key Patterns
@@ -80,4 +84,4 @@ bun test          # → 131 tests across 10 files
 ## Known Issues / TODO
 
 - Minor visual glitches may still occur in very small terminals or with rapid scrolling
-- Tests are colocated as `*.test.ts`/`*.test.tsx` siblings. Pure logic is tested directly; components use `ink-testing-library`. Several helpers (`truncate`, `formatCell`, `padCell`, `coerceValue`, `renderJson`, `isNetworkError`, `formatZodError`, navigation `reducer`) are exported for testability.
+- Tests live in `tests/` mirroring the `src/` directory structure. Pure logic is tested directly; components use `ink-testing-library`. Several helpers (`truncate`, `formatCell`, `padCell`, `coerceValue`, `renderJson`, `isNetworkError`, `formatZodError`, navigation `reducer`) are exported for testability.

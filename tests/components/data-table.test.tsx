@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, test, expect } from 'bun:test';
 import { render } from 'ink-testing-library';
-import { DataTable } from './data-table.js';
+import { DataTable } from '../../src/components/data-table.js';
 
 describe('DataTable component', () => {
   test('empty data shows message', () => {
