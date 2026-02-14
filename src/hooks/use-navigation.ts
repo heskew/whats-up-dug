@@ -7,16 +7,16 @@ export interface ScreenEntry {
   params: Record<string, any>;
 }
 
-interface NavigationState {
+export interface NavigationState {
   stack: ScreenEntry[];
 }
 
-type NavigationAction =
+export type NavigationAction =
   | { type: 'PUSH'; screen: ScreenName; params: Record<string, any> }
   | { type: 'POP' }
   | { type: 'RESET' };
 
-function reducer(state: NavigationState, action: NavigationAction): NavigationState {
+export function reducer(state: NavigationState, action: NavigationAction): NavigationState {
   switch (action.type) {
     case 'PUSH':
       return {

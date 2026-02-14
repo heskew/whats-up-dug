@@ -13,14 +13,19 @@ interface DataTableProps {
   onSelect?: (row: Record<string, any>) => void;
 }
 
-function truncate(str: string, max: number): string {
+export function truncate(str: string, max: number): string {
   if (str.length <= max) return str;
   return str.slice(0, max - 1) + '\u2026';
 }
 
 const TIMESTAMP_COLS = new Set(['__createdtime__', '__updatedtime__']);
 
-function formatCell(value: any, column: string): string {
+export function padCell(str: string, width: number): string {
+  const truncated = truncate(str, width);
+  return truncated + ' '.repeat(Math.max(0, width - truncated.length));
+}
+
+export function formatCell(value: any, column: string): string {
   if (value === null || value === undefined) return '';
   if (TIMESTAMP_COLS.has(column) && typeof value === 'number') {
     try {
@@ -144,10 +149,7 @@ export function DataTable({
     );
   }
 
-  const pad = (str: string, width: number) => {
-    const truncated = truncate(str, width);
-    return truncated + ' '.repeat(Math.max(0, width - truncated.length));
-  };
+  const pad = (str: string, width: number) => padCell(str, width);
 
   const gap = ' '.repeat(COL_GAP);
 

@@ -19,7 +19,7 @@ const COMPARATORS = [
 type EditField = 'attribute' | 'comparator' | 'value';
 type Mode = 'list' | 'edit' | 'sort' | 'limit';
 
-function coerceValue(v: string): string | number | boolean {
+export function coerceValue(v: string): string | number | boolean {
   if (v === 'true') return true;
   if (v === 'false') return false;
   const n = Number(v);

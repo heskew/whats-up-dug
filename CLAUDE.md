@@ -18,6 +18,7 @@ src/
   app.tsx            Root shell: navigation stack, key handling, screen routing, clearScreen on nav
   logger.ts          snooplogg setup — writes to ~/.dug/debug.log when enabled
   relationships.ts   Relationship inference from API metadata + naming conventions
+  test-helpers.ts    Shared test factories: makeSchema, makeAttr, mockFetch
   api/
     client.ts        HarperClient — Operations API over HTTP, Basic Auth, caching, retries
     types.ts         Zod schemas for all Harper API request/response shapes
@@ -34,7 +35,7 @@ src/
     system.tsx       Harper system_information display
   components/
     breadcrumb.tsx   Navigation breadcrumb bar
-    data-table.tsx   Viewport-clipped data grid with scroll indicators
+    data-table.tsx   Data grid with vertical viewport clipping and horizontal column windowing
     json-tree.tsx    Syntax-highlighted JSON renderer with annotations and line selection
     key-hints.tsx    Bottom key hint bar
     query-builder.tsx  Condition builder with attribute/comparator/value editing
@@ -48,8 +49,13 @@ Push/pop stack in `use-navigation.ts`. Screens are React components switched in 
 ### Overlay Pattern
 Table screen uses an `OverlayMode` union type. Overlays have their own `useInput` hooks. A shared `overlayActive` ref prevents the global Escape handler from popping navigation when an overlay is open.
 
-### Viewport Clipping
+### Viewport Clipping & Column Windowing
 `DataTable` and `JsonTree` only render rows/lines visible in the terminal. `useTerminalSize` provides reactive `tablePageSize` that drives both the API fetch limit and the render window. `RESERVED_LINES = 12` accounts for all chrome.
+
+`DataTable` also windows columns horizontally: natural widths (min 8, max 30) are computed from all page data, then columns are packed left-to-right starting from `colStart` until the available width is filled. `h`/`l` keys scroll columns. Row strings are pre-built as plain text to avoid Ink flex layout alignment issues.
+
+### Layout Constraints
+The root `Box` in `app.tsx` is constrained to `height={terminalRows}` to prevent Ink from rendering beyond the terminal viewport. The middle content area uses `flexGrow={1} flexShrink={1} overflow="hidden"` and the bottom key hints bar uses `flexShrink={0}` to stay anchored. Key hints truncate via `wrap="truncate"` in narrow terminals.
 
 ### Harper Operations API
 All requests POST to the instance URL with Basic Auth. Uses `schema` (not `database`) as the field name in request bodies. Empty conditions fall back to `search_by_value` with `*` wildcard (requires limit/offset). `indexed` field can be an object on some Harper versions — Zod uses `z.unknown().transform(v => v === true)`.
@@ -68,9 +74,10 @@ All requests POST to the instance URL with Basic Auth. Uses `schema` (not `datab
 bun install
 npm run build     # → dist/index.js
 npm run compile   # → standalone binary
+bun test          # → 131 tests across 10 files
 ```
 
 ## Known Issues / TODO
 
-- Scrolling through rows on a full data page causes screen flashing (Ink redraws all visible lines on every state change)
-- No tests yet (ink-testing-library is available in devDependencies)
+- Minor visual glitches may still occur in very small terminals or with rapid scrolling
+- Tests are colocated as `*.test.ts`/`*.test.tsx` siblings. Pure logic is tested directly; components use `ink-testing-library`. Several helpers (`truncate`, `formatCell`, `padCell`, `coerceValue`, `renderJson`, `isNetworkError`, `formatZodError`, navigation `reducer`) are exported for testability.

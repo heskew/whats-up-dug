@@ -12,7 +12,7 @@ import {
 } from './types.js';
 import { api as log } from '../logger.js';
 
-function formatZodError(err: ZodError): string {
+export function formatZodError(err: ZodError): string {
   const issues = err.issues.slice(0, 3);
   const lines = issues.map((i) => `  ${i.path.join('.')}: ${i.message}`);
   if (err.issues.length > 3) {
@@ -29,7 +29,7 @@ interface CacheEntry<T> {
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 500;
 
-function isNetworkError(error: unknown): boolean {
+export function isNetworkError(error: unknown): boolean {
   if (error instanceof TypeError) return true;
   if (error instanceof Error) {
     const msg = error.message.toLowerCase();

@@ -9,17 +9,17 @@ interface JsonTreeProps {
   selectedLine?: number;
 }
 
-interface LineSegment {
+export interface LineSegment {
   text: string;
   color?: 'green' | 'yellow' | 'cyan' | 'dim' | 'bold';
 }
 
-interface RenderedLine {
+export interface RenderedLine {
   segments: LineSegment[];
   topLevelKey?: string;
 }
 
-function renderJson(value: any, indent: number, trackKeys?: boolean): RenderedLine[] {
+export function renderJson(value: any, indent: number, trackKeys?: boolean): RenderedLine[] {
   const lines: RenderedLine[] = [];
   const prefix = ' '.repeat(indent);
 
