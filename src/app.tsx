@@ -22,6 +22,7 @@ interface AppProps {
   initialUrl?: string;
   initialUser?: string;
   initialPassword?: string;
+  version?: string;
 }
 
 export function App({
@@ -30,6 +31,7 @@ export function App({
   initialUrl,
   initialUser,
   initialPassword,
+  version,
 }: AppProps) {
   const { current, stack, push, pop } = useNavigation(initialScreen);
   const { exit } = useApp();
@@ -154,7 +156,7 @@ export function App({
 
   // Build breadcrumb from current screen only (cleaner than traversing full stack)
   const breadcrumbItems = useMemo(() => {
-    const items: string[] = ['dug \u{1F415}'];
+    const items: string[] = [version ? `dug ${version} \u{1F415}` : 'dug \u{1F415}'];
     if (connectedUrl) {
       try {
         const u = new URL(connectedUrl);

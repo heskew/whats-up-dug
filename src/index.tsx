@@ -6,6 +6,10 @@ import { HarperClient } from './api/client.js';
 import { App } from './app.js';
 import type { ScreenName } from './hooks/use-navigation.js';
 import { app as log } from './logger.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json');
 
 // Enter alternate screen buffer (like vim/lazygit)
 function enterAltScreen() {
@@ -22,7 +26,7 @@ const program = new Command();
 program
   .name('dug')
   .description('Interactive data exploration CLI for Harper')
-  .version('0.1.0')
+  .version(version)
   .option('-u, --url <url>', 'Harper instance URL', process.env.HARPER_URL)
   .option('--user <username>', 'Username', process.env.HARPER_USER)
   .option('-p, --password <password>', 'Password', process.env.HARPER_PASSWORD)
@@ -68,6 +72,7 @@ program
         initialUrl={url}
         initialUser={user}
         initialPassword={password}
+        version={version}
       />,
     );
   });
