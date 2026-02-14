@@ -483,9 +483,9 @@ export function TableScreen({
         </Box>
       )}
 
-      {/* Search overlay */}
-      {overlay === 'search' && (
-        <Box flexDirection="column" borderStyle="round" borderColor="yellow" paddingX={1} marginBottom={1}>
+      {/* Overlays replace the data table to avoid clipping under overflow:hidden */}
+      {overlay === 'search' ? (
+        <Box flexDirection="column" borderStyle="round" borderColor="yellow" paddingX={1}>
           <Text bold color="yellow">Quick Search</Text>
           <Box>
             <Text>Attribute: </Text>
@@ -507,11 +507,8 @@ export function TableScreen({
             </Text>
           )}
         </Box>
-      )}
-
-      {/* Sort overlay */}
-      {overlay === 'sort' && (
-        <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1} marginBottom={1}>
+      ) : overlay === 'sort' ? (
+        <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
           <Text bold color="cyan">Sort</Text>
           {sortStep === 'attr' ? (
             <>
@@ -533,11 +530,8 @@ export function TableScreen({
           )}
           <Text dimColor>Esc to cancel</Text>
         </Box>
-      )}
-
-      {/* Column picker overlay */}
-      {overlay === 'columns' && (
-        <Box flexDirection="column" borderStyle="round" borderColor="green" paddingX={1} marginBottom={1}>
+      ) : overlay === 'columns' ? (
+        <Box flexDirection="column" borderStyle="round" borderColor="green" paddingX={1}>
           <Text bold color="green">Column Picker</Text>
           <Text dimColor>Space to toggle, Esc to apply</Text>
           {allAttributes.map((attr, i) => (
@@ -549,11 +543,8 @@ export function TableScreen({
             </Box>
           ))}
         </Box>
-      )}
-
-      {/* Query builder overlay */}
-      {overlay === 'query' && (
-        <Box flexDirection="column" borderStyle="round" borderColor="magenta" paddingX={1} marginBottom={1}>
+      ) : overlay === 'query' ? (
+        <Box flexDirection="column" borderStyle="round" borderColor="magenta" paddingX={1}>
           <QueryBuilder
             attributes={allAttributes}
             defaultLimit={tablePageSize}
@@ -574,10 +565,7 @@ export function TableScreen({
             onCancel={() => setOverlay('none')}
           />
         </Box>
-      )}
-
-      {/* Schema info overlay — replaces data table */}
-      {overlay === 'schema-info' ? (
+      ) : overlay === 'schema-info' ? (
         <Box flexDirection="column" borderStyle="round" borderColor="blue" paddingX={1}>
           <Text bold color="blue">Schema Info</Text>
           <Text dimColor>j/k to scroll, Esc to close</Text>
