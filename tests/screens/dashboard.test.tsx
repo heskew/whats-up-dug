@@ -1,8 +1,8 @@
 import React from 'react';
 import { describe, test, expect, mock } from 'bun:test';
 import { render } from 'ink-testing-library';
-import { DashboardScreen } from './dashboard.js';
-import type { HarperClient } from '../api/client.js';
+import { DashboardScreen } from '../../src/screens/dashboard.js';
+import type { HarperClient } from '../../src/api/client.js';
 
 const tick = (ms = 50) => new Promise((r) => setTimeout(r, ms));
 

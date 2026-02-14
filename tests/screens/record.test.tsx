@@ -1,8 +1,8 @@
 import React from 'react';
 import { describe, test, expect, mock } from 'bun:test';
 import { render } from 'ink-testing-library';
-import { RecordScreen } from './record.js';
-import type { RelationshipInfo } from '../relationships.js';
+import { RecordScreen } from '../../src/screens/record.js';
+import type { RelationshipInfo } from '../../src/relationships.js';
 
 const tick = (ms = 50) => new Promise((r) => setTimeout(r, ms));
 

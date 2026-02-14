@@ -41,7 +41,8 @@ src/
 tests/
   test-helpers.ts    Shared test factories: makeSchema, makeAttr, mockFetch
   api/               Tests for HarperClient and Zod schemas
-  hooks/             Tests for navigation reducer
+  hooks/             Tests for navigation reducer, useApi, useTerminalSize
+  screens/           Tests for all screen components
   components/        Tests for DataTable, JsonTree, KeyHints, Breadcrumb, QueryBuilder
 ```
 

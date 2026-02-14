@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, test, expect, mock } from 'bun:test';
 import { render } from 'ink-testing-library';
 import { Text } from 'ink';
-import { useApi } from './use-api.js';
+import { useApi } from '../../src/hooks/use-api.js';
 
 /** Tiny component that exposes useApi state as text for assertion */
 function TestHarness({ apiFn, immediate = false }: { apiFn: (...args: any[]) => Promise<any>; immediate?: boolean }) {
