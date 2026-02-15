@@ -35,7 +35,8 @@ export function formatCell(value: any, column: string): string {
     }
   }
   if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
+  // Strip newlines so cells never span multiple visual lines
+  return String(value).replace(/[\r\n]+/g, ' ');
 }
 
 export function DataTable({
@@ -177,12 +178,12 @@ export function DataTable({
 
       {/* Header */}
       <Box>
-        <Text dimColor bold>{'    '}{headerStr}</Text>
+        <Text dimColor bold wrap="truncate">{'    '}{headerStr}</Text>
       </Box>
 
       {/* Separator */}
       <Box>
-        <Text dimColor>{'    '}{separatorStr}</Text>
+        <Text dimColor wrap="truncate">{'    '}{separatorStr}</Text>
       </Box>
 
       {/* Scroll indicator (top) */}
@@ -202,12 +203,12 @@ export function DataTable({
         return (
           <Box key={rowIdx}>
             {isSelected ? (
-              <Text>
+              <Text wrap="truncate">
                 <Text color="cyan" bold>{' \u25b6  '}</Text>
                 <Text inverse>{rowStr}</Text>
               </Text>
             ) : (
-              <Text>{'    '}{rowStr}</Text>
+              <Text wrap="truncate">{'    '}{rowStr}</Text>
             )}
           </Box>
         );
