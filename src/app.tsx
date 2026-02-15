@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Box, Text, useApp, useInput, useStdout } from 'ink';
+import { Box, Text, useApp, useInput } from 'ink';
 import { HarperClient } from './api/client.js';
 import { useNavigation, type ScreenName } from './hooks/use-navigation.js';
 import { Breadcrumb } from './components/breadcrumb.js';
@@ -51,12 +51,6 @@ export function App({
   // so that global Escape doesn't pop navigation
   const overlayActive = useRef(false);
 
-  // Clear screen before navigation so stale output from taller screens doesn't linger.
-  // Called synchronously before state changes — Ink's next render starts from row 0.
-  const { stdout } = useStdout();
-  const clearScreen = useCallback(() => {
-    stdout.write('\x1b[2J\x1b[H');
-  }, [stdout]);
 
   // Screens with text inputs where single-char keys should be suppressed
   const hasTextInput = current.screen === 'connect';
@@ -85,7 +79,6 @@ export function App({
       // Escape: navigate back, or quit from connect screen
       if (key.escape && !overlayActive.current) {
         if (stack.length > 1) {
-          clearScreen();
           pop();
         } else {
           setQuitting(true);
@@ -103,29 +96,26 @@ export function App({
       navLog.info('Connected, navigating to dashboard');
       client.clearCache();
       setConnectedUrl(url);
-      clearScreen();
       push('dashboard', { url });
     },
-    [push, client, clearScreen],
+    [push, client],
   );
 
   const handleSelectDatabase = useCallback(
     (db: string) => {
       navLog.info('Selected database: %s', db);
-      clearScreen();
       push('database', { database: db });
     },
-    [push, clearScreen],
+    [push],
   );
 
   const handleSelectTable = useCallback(
     (table: string) => {
       const db = current.params.database;
       navLog.info('Selected table: %s.%s', db, table);
-      clearScreen();
       push('table', { database: db, table });
     },
-    [push, current, clearScreen],
+    [push, current],
   );
 
   const handleSelectRecord = useCallback(
@@ -133,26 +123,23 @@ export function App({
       const { database, table } = current.params;
       const pk = primaryKey ?? 'id';
       navLog.info('Selected record: %s.%s[%s]', database, table, record[pk]);
-      clearScreen();
       push('record', { database, table, record, primaryKey: pk });
     },
-    [push, current, clearScreen],
+    [push, current],
   );
 
   const handleNavigateToRecord = useCallback(
     (database: string, table: string, record: Record<string, any>, primaryKey: string) => {
       navLog.info('FK navigate: %s.%s[%s]', database, table, record[primaryKey] ?? '?');
-      clearScreen();
       push('record', { database, table, record, primaryKey });
     },
-    [push, clearScreen],
+    [push],
   );
 
   const handleSystemInfo = useCallback(() => {
     navLog.info('Viewing system info');
-    clearScreen();
     push('system', {});
-  }, [push, clearScreen]);
+  }, [push]);
 
   // Build breadcrumb from current screen only (cleaner than traversing full stack)
   const breadcrumbItems = useMemo(() => {
