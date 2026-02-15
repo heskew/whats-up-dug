@@ -49,7 +49,7 @@ tests/
 ## Key Patterns
 
 ### Navigation
-Push/pop stack in `use-navigation.ts`. Screens are React components switched in `app.tsx`. `clearScreen()` (ANSI `\x1b[2J\x1b[H`) is called synchronously before every `push()`/`pop()` to prevent stale output from taller screens lingering.
+Push/pop stack in `use-navigation.ts`. Screens are React components switched in `app.tsx`. The root `Box` is constrained to `height={terminalRows}` with `overflow="hidden"`, so Ink naturally overwrites all visible lines on navigation — no manual screen clearing needed.
 
 ### Overlay Pattern
 Table screen uses an `OverlayMode` union type. Overlays have their own `useInput` hooks. A shared `overlayActive` ref prevents the global Escape handler from popping navigation when an overlay is open.
