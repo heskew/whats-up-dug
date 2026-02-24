@@ -2,6 +2,8 @@
 
 > *"I have just met your data and I LOVE it!"*
 
+![Dug in your data](dug-in-your-data.png)
+
 ## What dug does
 
 - Sniffs through databases, tables, and individual records
