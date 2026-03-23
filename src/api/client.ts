@@ -1,4 +1,5 @@
 import { ZodError } from 'zod';
+import { z } from 'zod';
 import {
   DescribeAllResponseSchema,
   TableSchemaSchema,
@@ -102,6 +103,19 @@ export class HarperClient {
     } catch (err) {
       throw err instanceof ZodError ? new Error(formatZodError(err)) : err;
     }
+
+    // Try to include the system schema if not already present
+    if (!parsed['system']) {
+      try {
+        const systemTables = await this.fetchSchemaDirectly('system');
+        if (systemTables) {
+          parsed = { ...parsed, system: systemTables };
+        }
+      } catch {
+        // System schema not accessible — skip silently
+      }
+    }
+
     this.setCache(cacheKey, parsed);
     return parsed;
   }
@@ -113,11 +127,28 @@ export class HarperClient {
 
     const all = await this.describeAll();
     const db = all[database];
-    if (!db) {
-      throw new Error(`Database "${database}" not found`);
+    if (db) {
+      this.setCache(cacheKey, db);
+      return db;
     }
-    this.setCache(cacheKey, db);
-    return db;
+
+    // Not in describe_all — try a direct fetch (e.g. system schema)
+    const direct = await this.fetchSchemaDirectly(database);
+    if (direct) {
+      this.setCache(cacheKey, direct);
+      return direct;
+    }
+
+    throw new Error(`Database "${database}" not found`);
+  }
+
+  private async fetchSchemaDirectly(schemaName: string): Promise<Record<string, TableSchema> | null> {
+    const raw = await this.execute({ operation: 'describe_schema', schema: schemaName });
+    try {
+      return z.record(z.string(), TableSchemaSchema).parse(raw);
+    } catch {
+      return null;
+    }
   }
 
   async describeTable(database: string, table: string): Promise<TableSchema> {
