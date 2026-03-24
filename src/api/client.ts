@@ -146,17 +146,26 @@ export class HarperClient {
     let raw: unknown;
     try {
       raw = await this.execute({ operation: 'describe_schema', schema: schemaName });
-    } catch (err) {
-      log.warn('describe_schema(%s) failed: %s', schemaName, err instanceof Error ? err.message : err);
+    } catch {
       return null;
     }
-    log.debug('describe_schema(%s) raw response: %o', schemaName, raw);
+
+    // Try flat format: { tableName: TableSchema, ... }
+    const tableRecord = z.record(z.string(), TableSchemaSchema);
     try {
-      return z.record(z.string(), TableSchemaSchema).parse(raw);
-    } catch (err) {
-      log.warn('describe_schema(%s) parse failed: %s', schemaName, err instanceof Error ? err.message : err);
-      return null;
+      const parsed = tableRecord.parse(raw);
+      if (Object.keys(parsed).length > 0) return parsed;
+    } catch {}
+
+    // Try wrapped format (same shape as describe_all): { schemaName: { tableName: TableSchema, ... } }
+    if (raw && typeof raw === 'object' && schemaName in (raw as Record<string, unknown>)) {
+      try {
+        const parsed = tableRecord.parse((raw as Record<string, unknown>)[schemaName]);
+        if (Object.keys(parsed).length > 0) return parsed;
+      } catch {}
     }
+
+    return null;
   }
 
   async describeTable(database: string, table: string): Promise<TableSchema> {
