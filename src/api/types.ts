@@ -13,13 +13,18 @@ export const TableSchemaSchema = z
   .object({
     schema: z.string(),
     name: z.string(),
-    hash_attribute: z.string(),
+    hash_attribute: z.string().optional(),
+    primary_key: z.string().optional(),
     audit: z.boolean(),
     schema_defined: z.boolean(),
     attributes: z.array(TableAttributeSchema),
     record_count: z.number(),
   })
-  .catchall(z.unknown()); // allow db_size, table_size, etc.
+  .catchall(z.unknown())
+  .transform((obj) => ({
+    ...obj,
+    hash_attribute: obj.hash_attribute ?? obj.primary_key ?? 'id',
+  }));
 export type TableSchema = z.infer<typeof TableSchemaSchema>;
 
 export const DescribeAllResponseSchema = z.record(
