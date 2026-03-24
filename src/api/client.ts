@@ -143,10 +143,18 @@ export class HarperClient {
   }
 
   private async fetchSchemaDirectly(schemaName: string): Promise<Record<string, TableSchema> | null> {
-    const raw = await this.execute({ operation: 'describe_schema', schema: schemaName });
+    let raw: unknown;
+    try {
+      raw = await this.execute({ operation: 'describe_schema', schema: schemaName });
+    } catch (err) {
+      log.warn('describe_schema(%s) failed: %s', schemaName, err instanceof Error ? err.message : err);
+      return null;
+    }
+    log.debug('describe_schema(%s) raw response: %o', schemaName, raw);
     try {
       return z.record(z.string(), TableSchemaSchema).parse(raw);
-    } catch {
+    } catch (err) {
+      log.warn('describe_schema(%s) parse failed: %s', schemaName, err instanceof Error ? err.message : err);
       return null;
     }
   }
