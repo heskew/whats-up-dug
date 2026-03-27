@@ -169,6 +169,13 @@ export function TableScreen({
     return Math.max(1, Math.ceil(schema.record_count / tablePageSize));
   }, [schema, tablePageSize]);
 
+  // Clamp page when totalPages shrinks (e.g. terminal resize)
+  useEffect(() => {
+    if (totalPages != null && page >= totalPages) {
+      setPage(totalPages - 1);
+    }
+  }, [totalPages, page]);
+
   // Build schema info lines for overlay
   const schemaInfoLines = useMemo(() => {
     if (!schema) return [];
@@ -230,7 +237,7 @@ export function TableScreen({
         return;
       }
       if (input === 'n') {
-        setPage((p) => p + 1);
+        setPage((p) => (totalPages != null && p + 1 >= totalPages ? p : p + 1));
         return;
       }
       if (input === 'p' && page > 0) {
