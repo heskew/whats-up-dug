@@ -52,7 +52,7 @@ const TAGLINE = Math.random() < 0.1
 
 
 const DEFAULT_URL = 'http://localhost:9925';
-const DEFAULT_USER = 'HDB_ADMIN';
+const DEFAULT_USER = 'admin';
 
 export function ConnectScreen({
   client,
@@ -192,10 +192,10 @@ export function ConnectScreen({
           <TextInput
             value={username}
             onChange={setUsername}
-            placeholder="HDB_ADMIN"
+            placeholder="admin"
           />
         ) : (
-          <Text>{username || <Text dimColor>HDB_ADMIN</Text>}</Text>
+          <Text>{username || <Text dimColor>admin</Text>}</Text>
         )}
       </Box>
 
